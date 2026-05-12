@@ -1,0 +1,9 @@
+{
+  "name": "ai-love-backend",
+  "version": "1.0.0",
+  "description": "AI 情感复盘后端接口",
+  "scripts": {
+    "start": "node api/analyze.js"
+  },
+  "dependencies": {}
+}
