@@ -3,7 +3,6 @@ export const config = {
 };
 
 export default async function handler(req) {
-  // 1. 关键修复：放行浏览器的 OPTIONS 预检请求
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -15,7 +14,6 @@ export default async function handler(req) {
     });
   }
 
-  // 2. 拦截非 POST 请求
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: '只支持 POST 请求' }), { 
       status: 405,
@@ -45,6 +43,7 @@ export default async function handler(req) {
   }
 }`;
 
+    // 获取环境变量里的 API 密钥
     const apiKey = process.env.THREEOHTWO_API_KEY; 
     
     const response = await fetch('https://api.302.ai/v1/chat/completions', {
@@ -63,19 +62,32 @@ export default async function handler(req) {
       })
     });
 
+    // 拿到 302.ai 返回的原始数据
     const data = await response.json();
+    
+    // 【关键新增】如果返回的数据里没有 choices，说明 302 接口报错了，直接把错误吐给前端
+    if (!data.choices || data.choices.length === 0) {
+        return new Response(JSON.stringify({ 
+            error: "302.ai 接口拒绝了请求，请检查原因：", 
+            raw_response: data 
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+    }
+
     let resultText = data.choices[0].message.content;
 
     return new Response(resultText, {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*' // 放行跨域
+        'Access-Control-Allow-Origin': '*' 
       }
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: "服务器开小差了", details: error.message }), { 
+    return new Response(JSON.stringify({ error: "代码执行错误", details: error.message }), { 
       status: 500,
       headers: { 'Access-Control-Allow-Origin': '*' }
     });
