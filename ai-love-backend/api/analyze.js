@@ -92,7 +92,7 @@ export default async function handler(req) {
 
     // 【修改这里】：把下面双引号里的字，替换成你真实的 302.ai 令牌（sk-开头的那一长串）
 
-    const apiKey = "sk-vdVb5vYB8JxiVF9HrzUNvRWKDGSx8xPchToovghENPvCRs0p"; 
+    const apiKey = "sk-jJnUvDWx5PkQg4CNa05lbYExskCush9WB4Cr8cuWLuqO1CIr"; 
 
     
 
