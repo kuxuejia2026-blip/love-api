@@ -3,8 +3,24 @@ export const config = {
 };
 
 export default async function handler(req) {
+  // 1. 关键修复：放行浏览器的 OPTIONS 预检请求
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS, POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
+
+  // 2. 拦截非 POST 请求
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: '只支持 POST 请求' }), { status: 405 });
+    return new Response(JSON.stringify({ error: '只支持 POST 请求' }), { 
+      status: 405,
+      headers: { 'Access-Control-Allow-Origin': '*' }
+    });
   }
 
   try {
@@ -54,11 +70,14 @@ export default async function handler(req) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*' 
+        'Access-Control-Allow-Origin': '*' // 放行跨域
       }
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: "服务器开小差了", details: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: "服务器开小差了", details: error.message }), { 
+      status: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' }
+    });
   }
 }
